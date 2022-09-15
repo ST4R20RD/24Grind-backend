@@ -2,7 +2,7 @@ package com.Selvagens.Grind.group.api
 
 import org.springframework.web.bind.annotation.*
 
-@RequestMapping("groups")
+@RequestMapping("/groups")
 interface GroupAPI {
     @GetMapping
     fun getSearchGroups(@RequestParam search: String): List<GroupDTO>
@@ -10,10 +10,10 @@ interface GroupAPI {
     @PostMapping
     fun postGroup(@RequestBody group: GroupDTO): GroupDTO
 
-    @GetMapping("{groupId}")
+    @GetMapping("/{groupId}")
     fun getGroup(@PathVariable groupId: Long): GroupDTO
 
-    @PutMapping("{groupId}")
+    @PutMapping("/{groupId}")
     fun putGroup(@PathVariable groupId: Long, @RequestBody group:GroupDTO): GroupDTO
 
 }
