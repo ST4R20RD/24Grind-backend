@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/groups")
 interface GroupAPI {
     @GetMapping
-    fun getSearchGroups(@RequestParam search: String): List<GroupDTO>
+    fun getSearchGroups(@RequestParam search: String?): List<GroupDTO>
 
     @PostMapping
     fun postGroup(@RequestBody group: GroupDTO): GroupDTO

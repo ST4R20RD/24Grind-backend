@@ -24,6 +24,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.h2database:h2:2.1.214")
+	implementation("org.mockito:mockito-core:4.8.0")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 

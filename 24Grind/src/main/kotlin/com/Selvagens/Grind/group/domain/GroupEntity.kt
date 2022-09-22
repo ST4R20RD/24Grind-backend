@@ -21,6 +21,6 @@ data class GroupDAO(
     var cards: List<Long>,//long -> Card object
 
     @ElementCollection
-    var categorias: List<String>
+    var categories: List<String>
 
 )
