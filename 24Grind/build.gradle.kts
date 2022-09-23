@@ -10,6 +10,7 @@ plugins {
 	kotlin("plugin.serialization") version "1.7.10"
 }
 
+
 group = "com.24Selvagens"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
@@ -29,6 +30,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("javax.persistence:javax.persistence-api:2.2")
 	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
+	implementation("org.mockito:mockito-core:4.8.0")
 	testImplementation(kotlin("test"))
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("io.mockk:mockk:1.12.8")
