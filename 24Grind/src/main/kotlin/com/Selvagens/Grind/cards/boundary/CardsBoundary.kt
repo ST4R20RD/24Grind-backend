@@ -18,6 +18,8 @@ class CardsBoundary(private val cards: CardsControl) : CardsAPI{
 
         return cards.findByNameContaining(search).map { it.toDTO() }
     }
+
+    override fun getCard(cardId: Long): CardDTO = cards.getOne(cardId).toDTO()
 /*
     private fun convertCardDTOtoDAO(cardDto: CardDTO) : CardDAO = CardDAO(
         0,

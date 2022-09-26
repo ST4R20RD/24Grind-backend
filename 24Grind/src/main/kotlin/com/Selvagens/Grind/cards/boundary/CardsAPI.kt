@@ -3,7 +3,7 @@ package com.Selvagens.Grind.cards.boundary
 import com.Selvagens.Grind.cards.domain.CardDTO
 import org.springframework.web.bind.annotation.*
 
-@RequestMapping("/cards")
+@RequestMapping("/v1/cards")
 interface CardsAPI {
 
     @PostMapping
@@ -11,4 +11,7 @@ interface CardsAPI {
 
     @GetMapping()
     fun getAllCards(@RequestParam search: String) : List<CardDTO>
+
+    @GetMapping("/{cardId}")
+    fun getCard(@PathVariable cardId: Long) : CardDTO
 }
