@@ -2,7 +2,7 @@ package com.Selvagens.Grind.group.api
 
 import org.springframework.web.bind.annotation.*
 
-@RequestMapping("/groups")
+@RequestMapping("/v1/groups")
 interface GroupAPI {
     @GetMapping
     fun getSearchGroups(@RequestParam search: String?): List<GroupDTO>

@@ -1,5 +1,6 @@
 package com.Selvagens.Grind.group.domain
 
+import com.Selvagens.Grind.group.api.GroupDTO
 import javax.persistence.*
 
 @Entity
@@ -24,3 +25,7 @@ data class GroupDAO(
     var categories: List<String>
 
 )
+{
+    //convert entity DAO into DTO object, removing de id
+    fun toDTO() : GroupDTO = GroupDTO(name, owner, members, cards, categories)
+}

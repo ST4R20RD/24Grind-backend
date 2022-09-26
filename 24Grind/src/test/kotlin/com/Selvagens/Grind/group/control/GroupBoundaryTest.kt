@@ -64,10 +64,10 @@ internal class GroupBoundaryTest {
     }
 
     @Test
-    fun `Test getAll`() {
+    fun `Test empty getAll`() {
         Mockito.`when`(groupControllerMock.getAll()).thenReturn(listGroupsDAO)
 
-        mvc.perform(get("/groups"))
+        mvc.perform(get("/v1/groups"))
             .andExpect(status().isOk)
             .andExpect(content().string(listInJsonAllGroups))
 
@@ -80,9 +80,14 @@ internal class GroupBoundaryTest {
         Mockito.`when`(groupControllerMock.findByNameContaining("crusaders")).thenReturn(listCrusadersGroupDAO)
 
 
-        mvc.perform(get("/groups?search=crusaders"))
+        mvc.perform(get("/v1/groups?search=crusaders"))
             .andExpect(status().isOk)
             .andExpect(content().string(listInJsonCrusadersGroups))
 
+    }
+
+    @Test
+    fun `Test postGroup`() {
+        Mockito.`when`(groupControllerMock.addOne(exampleGroupDAO1)).thenReturn(exampleGroupDAO1)
     }
 }
