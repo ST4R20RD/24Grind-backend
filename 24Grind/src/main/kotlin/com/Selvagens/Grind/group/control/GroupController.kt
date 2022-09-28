@@ -1,5 +1,6 @@
 package com.Selvagens.Grind.group.control
 
+import com.Selvagens.Grind.group.api.GroupDTO
 import com.Selvagens.Grind.group.domain.GroupDAO
 import com.Selvagens.Grind.group.domain.GroupRepository
 import org.springframework.http.HttpStatus
@@ -30,6 +31,14 @@ class GroupController (private val groups: GroupRepository) {
 
         val group = optionalGroup.get()
 
+        val toSaveGroup = updateGroupNonNULLValues(group, newGroup)
+
+        return groups.save(toSaveGroup)
+
+    }
+
+    private fun updateGroupNonNULLValues(group: GroupDAO, newGroup: GroupDAO) : GroupDAO{
+        //objectivo desta função é manter o idno group
         if(newGroup.name.isNotEmpty())
             group.name = newGroup.name
 
@@ -44,11 +53,6 @@ class GroupController (private val groups: GroupRepository) {
 
         if(newGroup.categories.isNotEmpty())
             group.categories = newGroup.categories
-
-        return groups.save(group)
-        /*
-        * toda esta ginastica seve para no futuro poder manter o id do editado
-        */
-
+        return group
     }
 }
