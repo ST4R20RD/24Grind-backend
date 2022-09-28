@@ -3,9 +3,10 @@ package com.Selvagens.Grind.cards.domain
 import javax.persistence.*
 
 @Entity
+@Table(name="ActivityCards")
 data class CardDAO(
     @Id @GeneratedValue
-    val id: Long,
+    val cardId: Long,
 
     val authorId: Long, //OneToMany
 
@@ -15,7 +16,7 @@ data class CardDAO(
 
     val duration: String,
 
-    val date: String,
+    val day: String,
 
     @ElementCollection
     val tags: List<String>,
@@ -38,7 +39,24 @@ data class CardDAO(
             name,
             image,
             duration,
-            date,
+            day,
+            tags,
+            description,
+            location,
+            category,
+            group,
+            participants
+        )
+    }
+
+    fun toIdDTO(): Card_IdDTO{
+        return Card_IdDTO(
+            cardId,
+            authorId,
+            name,
+            image,
+            duration,
+            day,
             tags,
             description,
             location,

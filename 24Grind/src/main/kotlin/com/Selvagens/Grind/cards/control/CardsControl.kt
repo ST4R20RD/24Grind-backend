@@ -13,7 +13,12 @@ class CardsControl(private val cards: CardsRepository) {
 
     fun getAll() : List<CardDAO> = cards.findAll().toList()
 
-    fun findByNameContaining(search: String) : List<CardDAO> = cards.findByNameContaining(search).toList()
-
     fun getOne(cardId: Long) : CardDAO = cards.findById(cardId).orElseThrow{ ResponseStatusException(HttpStatus.NOT_FOUND) }
+
+    fun findByCategoryContaining(category: String) : List<CardDAO> = cards.findByCategoryContaining(category).toList()
+
+    fun findByLocationContaining(location: String) : List<CardDAO> = cards.findByLocationContaining(location).toList()
+
+    fun findByCategoryContainingAndLocationContaining(category: String, location: String) : List<CardDAO> =
+        cards.findByCategoryContainingAndLocationContaining(category, location).toList()
 }
