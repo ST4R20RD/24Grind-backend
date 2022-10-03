@@ -1,7 +1,7 @@
-package com.Selvagens.Grind.user
+package com.Selvagens.Grind.users
 
-import com.Selvagens.Grind.user.entity.UserEntity
-import com.Selvagens.Grind.user.entity.UserUpdateRequest
+import com.Selvagens.Grind.users.entity.UserEntity
+import com.Selvagens.Grind.users.entity.UserUpdateRequest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
