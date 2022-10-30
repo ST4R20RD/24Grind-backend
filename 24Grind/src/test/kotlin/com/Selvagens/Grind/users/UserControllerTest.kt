@@ -1,7 +1,7 @@
-package com.Selvagens.Grind.user
+package com.Selvagens.Grind.users
 
-import com.Selvagens.Grind.user.entity.UserEntity
-import com.Selvagens.Grind.user.entity.toDTO
+import com.Selvagens.Grind.users.entity.UserEntity
+import com.Selvagens.Grind.users.entity.toDTO
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test

@@ -1,6 +1,6 @@
-package com.Selvagens.Grind.user
+package com.Selvagens.Grind.users
 
-import com.Selvagens.Grind.user.entity.*
+import com.Selvagens.Grind.users.entity.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -8,7 +8,7 @@ class UserMapperTest {
 
     @Test
     fun `Map UserCreateRequest to UserBE`() {
-        val userCreate = UserCreateRequest("Edward Newgate", "tremor_tremor","gurara", "image")
+        val userCreate = SignupUserRequest("Edward Newgate", "tremor_tremor","gurara", "image")
 
         val userBE = userCreate.toEntity()
 
