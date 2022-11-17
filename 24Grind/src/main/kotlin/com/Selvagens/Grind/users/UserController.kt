@@ -1,9 +1,12 @@
 package com.Selvagens.Grind.users
 
+import com.Selvagens.Grind.Application.Companion.jwtName
+import com.Selvagens.Grind.Application.Companion.jwtSecret
+import com.Selvagens.Grind.cards.*
 import com.Selvagens.Grind.users.entity.*
+import com.Selvagens.Grind.utils.JwtUtils
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -12,19 +15,14 @@ import javax.servlet.http.HttpServletResponse
 
 @RestController
 @RequestMapping("/v1/users")
-class UserController(private val userService: UserService) {
-    private final val HOUR = 1000 * 60 * 60
-    private final val DAY = 24 * HOUR
-    @Value("\${jwt_name}")
-    private val jwtName: String = ""
-    @Value("\${jwt_secret}")
-    private val jwtSecret: String = ""
+class UserController(private val userService: UserService, private val cardService: CardsService, private val jwtUtils: JwtUtils) {
+
 
     @PostMapping("/signup")
-    fun signupUser(@RequestBody userRequest: SignupUserRequest) = userService.signnupUser(userRequest).toDTO()
+    fun signupUser(@RequestBody userRequest: SignupUserRequestDTO) = userService.signupUser(userRequest).toDTO()
 
     @PostMapping("/login")
-    fun loginUser(@RequestBody loginUser: LoginUserRequest, response: HttpServletResponse): ResponseEntity<Any> {
+    fun loginUser(@RequestBody loginUser: LoginUserRequestDTO, response: HttpServletResponse): ResponseEntity<Any> {
         val user = userService.findByAccount(loginUser.accountName) ?: return ResponseEntity.badRequest()
             .body("User with account name ${loginUser.accountName} was not found")
 
@@ -32,13 +30,7 @@ class UserController(private val userService: UserService) {
             return ResponseEntity.badRequest().body("Invalid password")
         }
 
-        val issuer = user.id.toString()
-
-        val jwt = Jwts.builder().setIssuer(issuer).setExpiration(Date(System.currentTimeMillis() + DAY))
-            .signWith(SignatureAlgorithm.HS512, jwtSecret).compact()
-
-        val cookie = Cookie(jwtName, jwt)
-        cookie.isHttpOnly = true
+        val cookie = jwtUtils.generateCookie(user.id.toString())
 
         response.addCookie(cookie)
 
@@ -49,6 +41,7 @@ class UserController(private val userService: UserService) {
     fun logout(response: HttpServletResponse): ResponseEntity<Any> {
         val cookie = Cookie(jwtName, "")
         cookie.maxAge = 0
+        cookie.path = ""
 
         response.addCookie(cookie)
 
@@ -56,7 +49,7 @@ class UserController(private val userService: UserService) {
     }
 
     @GetMapping
-    fun getUsers(@CookieValue("\${jwt_name}") jwt: String?, @RequestParam search: String?): ResponseEntity<Any> {
+    fun getUsers(@CookieValue(jwtName) jwt: String?, @RequestParam search: String?): ResponseEntity<Any> {
         if (jwt == null) {
             return ResponseEntity.status(401).body("Must be authenticated!")
         }
@@ -65,7 +58,7 @@ class UserController(private val userService: UserService) {
 
 
     @GetMapping("/{id}")
-    fun getUser(@CookieValue("\${jwt_name}") jwt: String?, @PathVariable id: Long): ResponseEntity<Any> {
+    fun getUser(@CookieValue(jwtName) jwt: String?, @PathVariable("id") id: Long): ResponseEntity<Any> {
         if (jwt == null) {
             return ResponseEntity.status(401).body("Must be authenticated!")
         }
@@ -74,21 +67,38 @@ class UserController(private val userService: UserService) {
 
     @PatchMapping("/{id}")
     fun updateUser(
-        @CookieValue("\${jwt_name}") jwt: String?,
-        @PathVariable id: Long,
+        @CookieValue(jwtName) jwt: String?,
+        @PathVariable("id") id: Long,
         @RequestBody userRequest: UserUpdateRequest
     ): ResponseEntity<Any> {
         if (jwt == null) {
             return ResponseEntity.status(401).body("Must be authenticated!")
         }
 
-        val client = Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(jwt).body
-        if (client.issuer.toLong() != id) {
+        if (!jwtUtils.isSameUser(id, jwt)) {
             return ResponseEntity.status(401).body("User not allowed to edit other users!")
         }
 
         val updatedUser = userService.updateUser(id, userRequest).toDTO()
 
         return ResponseEntity.ok(updatedUser)
+    }
+
+    @PostMapping("{id}/cards")
+    fun createCard(
+        @CookieValue(jwtName) jwt: String?, @PathVariable("id") userId: Long, @RequestBody
+        cardRequest: CardRequestDTO
+    ): ResponseEntity<Any> {
+        if (jwt == null) {
+            return ResponseEntity.status(401).body("Must be authenticated!")
+        }
+
+        if (!jwtUtils.isSameUser(userId, jwt)) {
+            return ResponseEntity.status(401).body("User not allowed to create cards for other users!")
+        }
+
+        val user = userService.getUser(userId)
+        val card = cardService.createCard(cardRequest.toEntity(user))
+        return ResponseEntity.ok(card.toDTO())
     }
 }

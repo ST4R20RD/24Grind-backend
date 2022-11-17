@@ -1,11 +1,12 @@
 package com.Selvagens.Grind.users.entity
 
+import com.Selvagens.Grind.cards.CardEntity
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
 import kotlinx.serialization.Serializable
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import javax.persistence.*
-
+//todo: add email
 @Entity
 @Table(name = "users")
 @Serializable
@@ -28,9 +29,12 @@ class UserEntity {
     @Column(name = "image")
     var image: String = ""
 
+    @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL], mappedBy = "author")
+    var cards: MutableList<CardEntity> = mutableListOf()
+
     @Id
     @GeneratedValue
-    var id: Long? = null
+    var id: Long = 0
 
     fun comparePassword(password: String): Boolean = BCryptPasswordEncoder().matches(password, this.password)
 }
@@ -45,16 +49,16 @@ data class UserDTO(
     val id: Long?
 )
 
-fun UserDTO.toEntity(id: Long): UserEntity {
+fun UserDTO.toEntity(id: Long?): UserEntity {
     val user = UserEntity()
     user.username = username
     user.accountName = accountName
     user.image = image
-    user.id = id
+    user.id = id?:0
     return user
 }
 
-data class SignupUserRequest(
+data class SignupUserRequestDTO(
     @JsonProperty("username")
     var username: String,
     @JsonProperty("accountName")
@@ -65,7 +69,7 @@ data class SignupUserRequest(
     var image: String
 )
 
-fun SignupUserRequest.toEntity(): UserEntity {
+fun SignupUserRequestDTO.toEntity(): UserEntity {
     val user = UserEntity()
     user.username = username
     user.accountName = accountName
@@ -74,7 +78,7 @@ fun SignupUserRequest.toEntity(): UserEntity {
     return user
 }
 
-data class LoginUserRequest(
+data class LoginUserRequestDTO(
     @JsonProperty("accountName")
     var accountName: String,
     @JsonProperty("password")

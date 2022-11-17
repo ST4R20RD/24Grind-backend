@@ -3,7 +3,6 @@ package com.Selvagens.Grind.users
 import com.Selvagens.Grind.users.entity.*
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.springframework.web.bind.annotation.CookieValue
 import org.springframework.web.server.ResponseStatusException
 
 
@@ -12,7 +11,7 @@ class UserService(val userRepo: UserRepository) {
 
     fun getUsers(search: String?): Iterable<UserEntity> = userRepo.findAll()
 
-    fun signnupUser(signupUser: SignupUserRequest): UserEntity = userRepo.save(
+    fun signupUser(signupUser: SignupUserRequestDTO): UserEntity = userRepo.save(
         signupUser.toEntity()
     )
 
