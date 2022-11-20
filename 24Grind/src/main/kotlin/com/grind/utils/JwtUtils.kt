@@ -1,7 +1,7 @@
-package com.Selvagens.Grind.utils
+package com.grind.utils
 
-import com.Selvagens.Grind.Application
-import com.Selvagens.Grind.Application.Companion.jwtSecret
+import com.grind.Application
+import com.grind.Application.Companion.jwtSecret
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import org.springframework.stereotype.Component

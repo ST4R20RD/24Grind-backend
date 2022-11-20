@@ -1,12 +1,14 @@
-package com.Selvagens.Grind.users
+package com.grind.users
 
-import com.Selvagens.Grind.Application.Companion.jwtName
-import com.Selvagens.Grind.Application.Companion.jwtSecret
-import com.Selvagens.Grind.cards.*
-import com.Selvagens.Grind.users.entity.*
-import com.Selvagens.Grind.utils.JwtUtils
-import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
+import com.grind.Application.Companion.defaultImage
+import com.grind.Application.Companion.jwtName
+import com.grind.cards.CardRequestDTO
+import com.grind.cards.CardsService
+import com.grind.cards.toDTO
+import com.grind.cards.toEntity
+import com.grind.cards.*
+import com.grind.users.*
+import com.grind.utils.JwtUtils
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -15,11 +17,18 @@ import javax.servlet.http.HttpServletResponse
 
 @RestController
 @RequestMapping("/v1/users")
-class UserController(private val userService: UserService, private val cardService: CardsService, private val jwtUtils: JwtUtils) {
+class UserController(
+    private val userService: UserService,
+    private val cardService: CardsService,
+    private val jwtUtils: JwtUtils
+) {
 
 
     @PostMapping("/signup")
-    fun signupUser(@RequestBody userRequest: SignupUserRequestDTO) = userService.signupUser(userRequest).toDTO()
+    fun signupUser(@RequestBody userRequest: SignupUserRequestDTO) = ResponseEntity.ok(
+        userService.signupUser
+            (userRequest).toDTO()
+    )
 
     @PostMapping("/login")
     fun loginUser(@RequestBody loginUser: LoginUserRequestDTO, response: HttpServletResponse): ResponseEntity<Any> {
@@ -34,7 +43,8 @@ class UserController(private val userService: UserService, private val cardServi
 
         response.addCookie(cookie)
 
-        return ResponseEntity.ok(user)
+        // todo: don't return UserEntity
+        return ResponseEntity.ok(user.toDTO())
     }
 
     @PostMapping("/logout")
@@ -65,7 +75,7 @@ class UserController(private val userService: UserService, private val cardServi
         return ResponseEntity.ok(userService.getUser(id).toDTO())
     }
 
-    @PatchMapping("/{id}")
+    @PostMapping("/{id}")
     fun updateUser(
         @CookieValue(jwtName) jwt: String?,
         @PathVariable("id") id: Long,

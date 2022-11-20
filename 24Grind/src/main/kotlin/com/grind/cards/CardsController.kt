@@ -1,7 +1,6 @@
-package com.Selvagens.Grind.cards
+package com.grind.cards
 
-import com.Selvagens.Grind.Application.Companion.jwtName
-import com.Selvagens.Grind.users.UserService
+import com.grind.Application.Companion.jwtName
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
