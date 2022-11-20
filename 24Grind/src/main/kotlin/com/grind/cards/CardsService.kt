@@ -1,4 +1,4 @@
-package com.Selvagens.Grind.cards
+package com.grind.cards
 
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException

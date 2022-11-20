@@ -11,7 +11,7 @@ plugins {
 }
 
 
-group = "com.24Selvagens"
+group = "com.grind"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_17
 
@@ -23,18 +23,18 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("org.springframework.boot:spring-boot-configuration-processor")
 	implementation("org.springframework.security:spring-security-test")
 	implementation("io.jsonwebtoken:jjwt:0.9.1")
 	implementation("com.h2database:h2")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("javax.persistence:javax.persistence-api:2.2")
-	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0")
+	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 	implementation("org.mockito:mockito-core:4.8.0")
 	testImplementation(kotlin("test"))
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
-	testImplementation("io.mockk:mockk:1.12.8")
-
+	testImplementation("io.mockk:mockk:1.13.2")
 }
 
 tasks.withType<KotlinCompile> {
