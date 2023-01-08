@@ -2,6 +2,8 @@ package com.grind.images
 
 import com.grind.Application.Companion.cloudinaryKey
 import com.grind.Application.Companion.cloudinarySecret
+import com.grind.errors.ErrorCode.ERROR_UPLOADING_IMAGE
+import com.grind.errors.ErrorResponse
 import org.springframework.http.*
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
@@ -38,16 +40,13 @@ class ImagesController {
             )
 
             if (response.statusCode != HttpStatus.OK) {
-                return ResponseEntity.internalServerError().body(
-                    "Error uploading image to cloudinary: \n{\nstatus: ${response.statusCode},\nbody: ${response
-                        .body}\n}"
-                )
+                return ResponseEntity.badRequest().body(ErrorResponse(response.statusCodeValue, ERROR_UPLOADING_IMAGE))
             }
             return ResponseEntity.ok(response.body)
 
         } catch (ex: RestClientException) {
-            return ResponseEntity.internalServerError().body("Error uploading image to cloudinary: ${ex
-                .localizedMessage}")
+            println(ex.localizedMessage)
+            return ResponseEntity.badRequest().body(ErrorResponse(HttpStatus.BAD_REQUEST.value(), ERROR_UPLOADING_IMAGE))
         }
     }
 

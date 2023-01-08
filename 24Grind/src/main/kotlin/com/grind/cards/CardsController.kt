@@ -1,6 +1,9 @@
 package com.grind.cards
 
 import com.grind.Application.Companion.jwtName
+import com.grind.errors.ErrorCode
+import com.grind.errors.ErrorResponse
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -15,7 +18,8 @@ class CardsController(private val cards: CardsService) {
         @RequestParam location: String?
     ): ResponseEntity<Any> {
         if (jwt == null) {
-            return ResponseEntity.status(401).body("Must be authenticated!")
+            return ResponseEntity.badRequest()
+                .body(ErrorResponse(HttpStatus.BAD_REQUEST.value(), ErrorCode.USER_NOT_AUTHENTICATED))
         }
 
         if (category.isNullOrEmpty() && location.isNullOrEmpty())
@@ -38,7 +42,8 @@ class CardsController(private val cards: CardsService) {
     @GetMapping("/{cardId}")
     fun getCard(@CookieValue(jwtName) jwt: String?, @PathVariable cardId: Long): ResponseEntity<Any> {
         if (jwt == null) {
-            return ResponseEntity.status(401).body("Must be authenticated!")
+            return ResponseEntity.badRequest()
+                .body(ErrorResponse(HttpStatus.BAD_REQUEST.value(), ErrorCode.USER_NOT_AUTHENTICATED))
         }
 
         return ResponseEntity.ok(cards.getCard(cardId).toDTO())

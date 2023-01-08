@@ -16,5 +16,6 @@ class WebConfig: WebMvcConfigurer {
             // todo: check why fe_origin env variable doesn't work
             .allowedOrigins(frontend)
             .allowCredentials(true)
+            .allowedMethods("*")
     }
 }

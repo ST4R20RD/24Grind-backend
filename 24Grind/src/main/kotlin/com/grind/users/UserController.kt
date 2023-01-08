@@ -1,14 +1,12 @@
 package com.grind.users
 
-import com.grind.Application.Companion.defaultImage
 import com.grind.Application.Companion.jwtName
-import com.grind.cards.CardRequestDTO
-import com.grind.cards.CardsService
-import com.grind.cards.toDTO
-import com.grind.cards.toEntity
 import com.grind.cards.*
+import com.grind.errors.ErrorCode
+import com.grind.errors.ErrorResponse
 import com.grind.users.*
 import com.grind.utils.JwtUtils
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -18,32 +16,28 @@ import javax.servlet.http.HttpServletResponse
 @RestController
 @RequestMapping("/v1/users")
 class UserController(
-    private val userService: UserService,
-    private val cardService: CardsService,
-    private val jwtUtils: JwtUtils
+    private val userService: UserService, private val cardService: CardsService, private val jwtUtils: JwtUtils
 ) {
-
 
     @PostMapping("/signup")
     fun signupUser(@RequestBody userRequest: SignupUserRequestDTO) = ResponseEntity.ok(
-        userService.signupUser
-            (userRequest).toDTO()
+        userService.signupUser(userRequest).toDTO()
     )
 
     @PostMapping("/login")
     fun loginUser(@RequestBody loginUser: LoginUserRequestDTO, response: HttpServletResponse): ResponseEntity<Any> {
         val user = userService.findByAccount(loginUser.accountName) ?: return ResponseEntity.badRequest()
-            .body("User with account name ${loginUser.accountName} was not found")
+            .body(ErrorResponse(HttpStatus.BAD_REQUEST.value(), ErrorCode.WRONG_USER_OR_PASSWORD))
 
         if (!user.comparePassword(loginUser.password)) {
-            return ResponseEntity.badRequest().body("Invalid password")
+            return ResponseEntity.badRequest()
+                .body(ErrorResponse(HttpStatus.BAD_REQUEST.value(), ErrorCode.WRONG_USER_OR_PASSWORD))
         }
 
         val cookie = jwtUtils.generateCookie(user.id.toString())
 
         response.addCookie(cookie)
 
-        // todo: don't return UserEntity
         return ResponseEntity.ok(user.toDTO())
     }
 
@@ -55,13 +49,14 @@ class UserController(
 
         response.addCookie(cookie)
 
-        return ResponseEntity.ok("Logged out!")
+        return ResponseEntity.ok().build()
     }
 
     @GetMapping
     fun getUsers(@CookieValue(jwtName) jwt: String?, @RequestParam search: String?): ResponseEntity<Any> {
         if (jwt == null) {
-            return ResponseEntity.status(401).body("Must be authenticated!")
+            return ResponseEntity.badRequest()
+                .body(ErrorResponse(HttpStatus.BAD_REQUEST.value(), ErrorCode.USER_NOT_AUTHENTICATED))
         }
         return ResponseEntity.ok(userService.getUsers(search).map(UserEntity::toDTO))
     }
@@ -70,23 +65,27 @@ class UserController(
     @GetMapping("/{id}")
     fun getUser(@CookieValue(jwtName) jwt: String?, @PathVariable("id") id: Long): ResponseEntity<Any> {
         if (jwt == null) {
-            return ResponseEntity.status(401).body("Must be authenticated!")
+            return ResponseEntity.badRequest()
+                .body(ErrorResponse(HttpStatus.BAD_REQUEST.value(), ErrorCode.USER_NOT_AUTHENTICATED))
         }
         return ResponseEntity.ok(userService.getUser(id).toDTO())
     }
 
     @PostMapping("/{id}")
     fun updateUser(
-        @CookieValue(jwtName) jwt: String?,
-        @PathVariable("id") id: Long,
-        @RequestBody userRequest: UserUpdateRequest
+        @CookieValue(jwtName) jwt: String?, @PathVariable("id") id: Long, @RequestBody userRequest: UserUpdateRequest
     ): ResponseEntity<Any> {
         if (jwt == null) {
-            return ResponseEntity.status(401).body("Must be authenticated!")
+            return ResponseEntity.badRequest()
+                .body(ErrorResponse(HttpStatus.BAD_REQUEST.value(), ErrorCode.USER_NOT_AUTHENTICATED))
         }
 
         if (!jwtUtils.isSameUser(id, jwt)) {
-            return ResponseEntity.status(401).body("User not allowed to edit other users!")
+            return ResponseEntity.badRequest().body(
+                ErrorResponse(
+                    HttpStatus.BAD_REQUEST.value(), ErrorCode.CANNOT_EDIT_OTHER_USERS
+                )
+            )
         }
 
         val updatedUser = userService.updateUser(id, userRequest).toDTO()
@@ -96,15 +95,16 @@ class UserController(
 
     @PostMapping("{id}/cards")
     fun createCard(
-        @CookieValue(jwtName) jwt: String?, @PathVariable("id") userId: Long, @RequestBody
-        cardRequest: CardRequestDTO
+        @CookieValue(jwtName) jwt: String?, @PathVariable("id") userId: Long, @RequestBody cardRequest: CardRequestDTO
     ): ResponseEntity<Any> {
         if (jwt == null) {
-            return ResponseEntity.status(401).body("Must be authenticated!")
+            return ResponseEntity.badRequest()
+                .body(ErrorResponse(HttpStatus.BAD_REQUEST.value(), ErrorCode.USER_NOT_AUTHENTICATED))
         }
 
         if (!jwtUtils.isSameUser(userId, jwt)) {
-            return ResponseEntity.status(401).body("User not allowed to create cards for other users!")
+            return ResponseEntity.badRequest()
+                .body(ErrorResponse(HttpStatus.BAD_REQUEST.value(), ErrorCode.CANNOT_CREATE_CARDS_FOR_OTHER_USERS))
         }
 
         val user = userService.getUser(userId)
