@@ -1,6 +1,5 @@
-package com.Selvagens.Grind.users
+package com.grind.users
 
-import com.Selvagens.Grind.users.entity.*
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.server.ResponseStatusException
@@ -22,8 +21,8 @@ class UserService(val userRepo: UserRepository) {
 
     fun updateUser(id: Long, userRequest: UserUpdateRequest): UserEntity {
         val user = getUser(id)
-        if (userRequest.username != null) user.username = userRequest.username!!
-        if (userRequest.image != null) user.image = userRequest.image!!
+        if (userRequest.username != null) user.username = userRequest.username
+        if (userRequest.image != null) user.image = userRequest.image
 
         return userRepo.save(user)
     }

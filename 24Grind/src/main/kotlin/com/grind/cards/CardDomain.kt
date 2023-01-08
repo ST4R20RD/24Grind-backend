@@ -1,10 +1,7 @@
-package com.Selvagens.Grind.cards
+package com.grind.cards
 
-import com.Selvagens.Grind.users.entity.UserDTO
-import com.Selvagens.Grind.users.entity.UserEntity
-import com.Selvagens.Grind.users.entity.toDTO
-import com.Selvagens.Grind.users.entity.toEntity
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.grind.users.*
 import kotlinx.serialization.Serializable
 import javax.persistence.*
 
@@ -13,12 +10,8 @@ import javax.persistence.*
 @Serializable
 class CardEntity {
 
-    @ManyToOne(fetch = FetchType.EAGER, cascade = [CascadeType.ALL])
-    @JoinColumn(name = "author_id")
-    var author: UserEntity = UserEntity()
-
     @Column(name = "image")
-    var image: String = ""
+    var image: String? = null
 
     @Column(name = "duration")
     var duration: String = ""
@@ -33,16 +26,62 @@ class CardEntity {
     var location: String? = null
 
     @Column(name = "category")
-    var category: String = ""
+    var category: String? = ""
 
     @ElementCollection
     @Column(name = "participants")
     var participants: List<Long>? = null
 
+    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.ALL])
+    @JoinColumn(name = "author_id")
+    var author: UserEntity = UserEntity()
+
     @Id
     @GeneratedValue
     var id: Long = 0
 }
+
+@Serializable
+data class CardDTO(
+    val image: String?,
+    val duration: String,
+    val day: String,
+    val description: String,
+    val location: String?,
+    val category: String?,
+    val participants: List<Long>?,
+    val author: CardUserDTO,
+    val id: Long?
+)
+
+@Serializable
+data class UserCardDTO(
+    val image: String?,
+    val duration: String,
+    val day: String,
+    val description: String,
+    val location: String?,
+    val category: String?,
+    val participants: List<Long>?,
+    val id: Long?
+)
+
+data class CardRequestDTO(
+    @JsonProperty("duration")
+    val duration: String,
+    @JsonProperty("day")
+    val day: String,
+    @JsonProperty("description")
+    val description: String,
+    @JsonProperty(value = "image", required = false)
+    val image: String?,
+    @JsonProperty(value = "location", required = false)
+    val location: String?,
+    @JsonProperty(value = "category", required = false)
+    val category: String?,
+    @JsonProperty(value = "participants", required = false)
+    val participants: List<Long>?
+)
 
 fun CardEntity.toDTO(): CardDTO = CardDTO(
     image,
@@ -52,51 +91,18 @@ fun CardEntity.toDTO(): CardDTO = CardDTO(
     location,
     category,
     participants,
-    author.toDTO(),
+    author.toCardDTO(),
     id
 )
-
-@Serializable
-data class CardDTO(
-    val image: String,
-    val duration: String,
-    val day: String,
-    val description: String,
-    val location: String?,
-    val category: String,
-    val participants: List<Long>?,
-    val author: UserDTO,
-    val id: Long?
-)
-
-fun CardDTO.toEntity(): CardEntity {
-    val card = CardEntity()
-    card.author = author.toEntity(author.id)
-    card.image = image
-    card.duration = duration
-    card.day = day
-    card.description = description
-    card.location = location
-    card.category = category
-    card.participants = participants
-    return card
-}
-
-data class CardRequestDTO(
-    @JsonProperty("image")
-    val image: String,
-    @JsonProperty("duration")
-    val duration: String,
-    @JsonProperty("day")
-    val day: String,
-    @JsonProperty("description")
-    val description: String,
-    @JsonProperty(value = "location", required = false)
-    val location: String?,
-    @JsonProperty("category")
-    val category: String,
-    @JsonProperty(value = "participants", required = false)
-    val participants: List<Long>?
+fun CardEntity.toUserDTO(): UserCardDTO = UserCardDTO(
+    image,
+    duration,
+    day,
+    description,
+    location,
+    category,
+    participants,
+    id
 )
 
 fun CardRequestDTO.toEntity(author: UserEntity): CardEntity {

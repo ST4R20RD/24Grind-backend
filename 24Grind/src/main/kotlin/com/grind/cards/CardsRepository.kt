@@ -1,6 +1,5 @@
-package com.Selvagens.Grind.cards
+package com.grind.cards
 
-import com.Selvagens.Grind.cards.CardEntity
 import org.springframework.data.repository.CrudRepository
 
 interface CardsRepository : CrudRepository<CardEntity, Long>{

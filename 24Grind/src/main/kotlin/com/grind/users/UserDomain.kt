@@ -1,12 +1,12 @@
-package com.Selvagens.Grind.users.entity
+package com.grind.users
 
-import com.Selvagens.Grind.cards.CardEntity
+import com.grind.cards.*
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.grind.Application.Companion.defaultImage
 import kotlinx.serialization.Serializable
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import javax.persistence.*
-//todo: add email
 @Entity
 @Table(name = "users")
 @Serializable
@@ -17,6 +17,9 @@ class UserEntity {
 
     @Column(name = "accountName", unique = true)
     var accountName: String = ""
+
+    @Column(name = "email", unique = true)
+    var email: String = ""
 
     @Column(name = "password")
     @JsonIgnore
@@ -29,6 +32,7 @@ class UserEntity {
     @Column(name = "image")
     var image: String = ""
 
+    // check looping generation: user has cards, cards have a user, user has cards
     @OneToMany(fetch = FetchType.LAZY, cascade = [CascadeType.ALL], mappedBy = "author")
     var cards: MutableList<CardEntity> = mutableListOf()
 
@@ -39,24 +43,28 @@ class UserEntity {
     fun comparePassword(password: String): Boolean = BCryptPasswordEncoder().matches(password, this.password)
 }
 
-fun UserEntity.toDTO() = UserDTO(username, accountName, image, id)
+fun UserEntity.toDTO() = UserDTO(username, accountName, email, image, cards.map(CardEntity::toUserDTO)
+    .toMutableList(), id)
+fun UserEntity.toCardDTO() = CardUserDTO(username, accountName, email, image, id)
 
 @Serializable
 data class UserDTO(
     val username: String,
     val accountName: String,
+    val email: String,
     val image: String,
+    val cards: List<UserCardDTO>,
     val id: Long?
 )
 
-fun UserDTO.toEntity(id: Long?): UserEntity {
-    val user = UserEntity()
-    user.username = username
-    user.accountName = accountName
-    user.image = image
-    user.id = id?:0
-    return user
-}
+@Serializable
+data class CardUserDTO(
+    val username: String,
+    val accountName: String,
+    val email: String,
+    val image: String,
+    val id: Long?
+)
 
 data class SignupUserRequestDTO(
     @JsonProperty("username")
@@ -65,8 +73,8 @@ data class SignupUserRequestDTO(
     var accountName: String,
     @JsonProperty("password")
     var password: String,
-    @JsonProperty("image")
-    var image: String
+    @JsonProperty("email")
+    var email: String
 )
 
 fun SignupUserRequestDTO.toEntity(): UserEntity {
@@ -74,7 +82,8 @@ fun SignupUserRequestDTO.toEntity(): UserEntity {
     user.username = username
     user.accountName = accountName
     user.password = password
-    user.image = image
+    user.image = defaultImage
+    user.email = email
     return user
 }
 
@@ -87,7 +96,7 @@ data class LoginUserRequestDTO(
 
 data class UserUpdateRequest(
     @JsonProperty(value = "username", required = false)
-    var username: String? = null,
+    val username: String?,
     @JsonProperty(value = "image", required = false)
-    var image: String?
+    val image: String?
 )

@@ -1,4 +1,4 @@
-package com.Selvagens.Grind
+package com.grind
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
